@@ -69,3 +69,24 @@ plt.show()
 # Age vs Strength 관계 확인  
 sbn.regplot(x="Age_Day", y="Concrete_Strength", data=df, order=2)  # 2차 다항식 피팅  
 plt.show()
+
+# 1. 비선형 관계 분석 (Age 구간별)
+plt.figure(figsize=(12,5))
+age_bins = [0, 3, 7, 28, 90, 120]
+df['Age_Group'] = pd.cut(df['Age_Day'], bins=age_bins)
+
+# 구간별 강도 변화율 계산
+strength_growth = df.groupby('Age_Group')['Concrete_Strength'].mean()
+growth_rate = strength_growth.pct_change() * 100
+
+# 시각화
+plt.subplot(1,2,1)
+sbn.barplot(x=strength_growth.index, y=strength_growth.values, palette="Blues_d")
+plt.title("Average Strength by Age Group")
+
+plt.subplot(1,2,2)
+sbn.lineplot(x=range(len(growth_rate.dropna())), y=growth_rate.dropna(), marker="o")
+plt.axhline(0, color='red', linestyle='--')
+plt.title("Strength Growth Rate (%)")
+plt.tight_layout()
+plt.show()
